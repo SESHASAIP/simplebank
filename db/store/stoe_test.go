@@ -2,7 +2,6 @@ package store
 
 import (
 	"database/sql"
-	"simplebank/db/gen"
 	"testing"
 )
 
@@ -15,7 +14,7 @@ func TestTransferTx(t testing.T) {
 	dbcon, err := sql.Open(drivername, driverSource)
 	if err == nil {
 		s := newStore(dbcon)
-		account1 := gen.CreateRandomAccount()
+		account1 := gen.
 
 	}
 

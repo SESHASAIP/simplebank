@@ -25,9 +25,9 @@ type CreateAuthorParams struct {
 	Currency string `json:"currency"`
 }
 
-func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Accounts, error) {
+func (q *Queries) CreateAuthor(ctx context.Context, arg CreateAuthorParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, createAuthor, arg.Owner, arg.Balance, arg.Currency)
-	var i Accounts
+	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.Owner,
@@ -53,9 +53,9 @@ type CreateEntriesParams struct {
 	Amount    int32 `json:"amount"`
 }
 
-func (q *Queries) CreateEntries(ctx context.Context, arg CreateEntriesParams) (Entries, error) {
+func (q *Queries) CreateEntries(ctx context.Context, arg CreateEntriesParams) (Entry, error) {
 	row := q.db.QueryRowContext(ctx, createEntries, arg.AccountID, arg.Amount)
-	var i Entries
+	var i Entry
 	err := row.Scan(
 		&i.ID,
 		&i.AccountID,
@@ -82,9 +82,9 @@ type CreateTransfersParams struct {
 	Amount        int32 `json:"amount"`
 }
 
-func (q *Queries) CreateTransfers(ctx context.Context, arg CreateTransfersParams) (Transfers, error) {
+func (q *Queries) CreateTransfers(ctx context.Context, arg CreateTransfersParams) (Transfer, error) {
 	row := q.db.QueryRowContext(ctx, createTransfers, arg.FromAccountID, arg.ToAccountID, arg.Amount)
-	var i Transfers
+	var i Transfer
 	err := row.Scan(
 		&i.ID,
 		&i.FromAccountID,
@@ -99,14 +99,31 @@ const getAccount = `-- name: GetAccount :one
 SELECT id, owner, balance, currency, created_at FROM accounts WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetAccount(ctx context.Context, id int64) (Accounts, error) {
+func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 	row := q.db.QueryRowContext(ctx, getAccount, id)
-	var i Accounts
+	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.Owner,
 		&i.Balance,
 		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getTransfers = `-- name: GetTransfers :one
+SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetTransfers(ctx context.Context, id int64) (Transfer, error) {
+	row := q.db.QueryRowContext(ctx, getTransfers, id)
+	var i Transfer
+	err := row.Scan(
+		&i.ID,
+		&i.FromAccountID,
+		&i.ToAccountID,
+		&i.Amount,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -121,15 +138,15 @@ type ListAccountParams struct {
 	Offset int32 `json:"offset"`
 }
 
-func (q *Queries) ListAccount(ctx context.Context, arg ListAccountParams) ([]Accounts, error) {
+func (q *Queries) ListAccount(ctx context.Context, arg ListAccountParams) ([]Account, error) {
 	rows, err := q.db.QueryContext(ctx, listAccount, arg.Limit, arg.Offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Accounts
+	var items []Account
 	for rows.Next() {
-		var i Accounts
+		var i Account
 		if err := rows.Scan(
 			&i.ID,
 			&i.Owner,
@@ -159,9 +176,9 @@ type UpdateAccountParams struct {
 	Balance int32 `json:"balance"`
 }
 
-func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Accounts, error) {
+func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) (Account, error) {
 	row := q.db.QueryRowContext(ctx, updateAccount, arg.ID, arg.Balance)
-	var i Accounts
+	var i Account
 	err := row.Scan(
 		&i.ID,
 		&i.Owner,
@@ -203,7 +220,7 @@ const deleteAccount = `-- name: deleteAccount :exec
 DELETE from accounts WHERE id = $1
 `
 
-func (q *Queries) DeleteAccount(ctx context.Context, id int64) error {
+func (q *Queries) deleteAccount(ctx context.Context, id int64) error {
 	_, err := q.db.ExecContext(ctx, deleteAccount, id)
 	return err
 }

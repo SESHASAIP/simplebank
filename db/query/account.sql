@@ -29,6 +29,9 @@ RETURNING *;
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = $1 LIMIT 1;
 
+-- name: GetTransfers :one
+SELECT * FROM transfers WHERE id = $1 LIMIT 1;
+
 -- name: ListAccount :many
 SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;
 
