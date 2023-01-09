@@ -112,6 +112,39 @@ func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 	return i, err
 }
 
+const getAccountForUpdate = `-- name: GetAccountForUpdate :one
+SELECT id, owner, balance, currency, created_at FROM accounts WHERE id = $1 LIMIT 1  FOR UPDATE
+`
+
+func (q *Queries) GetAccountForUpdate(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountForUpdate, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const getEntry = `-- name: GetEntry :one
+SELECT id, account_id, amount, created_at FROM entries WHERE id = $1 LIMIT 1
+`
+
+func (q *Queries) GetEntry(ctx context.Context, id int64) (Entry, error) {
+	row := q.db.QueryRowContext(ctx, getEntry, id)
+	var i Entry
+	err := row.Scan(
+		&i.ID,
+		&i.AccountID,
+		&i.Amount,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getTransfers = `-- name: GetTransfers :one
 SELECT id, from_account_id, to_account_id, amount, created_at FROM transfers WHERE id = $1 LIMIT 1
 `

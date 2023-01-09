@@ -29,8 +29,13 @@ RETURNING *;
 -- name: GetAccount :one
 SELECT * FROM accounts WHERE id = $1 LIMIT 1;
 
+-- name: GetAccountForUpdate :one
+SELECT * FROM accounts WHERE id = $1 LIMIT 1  FOR NO KEY UPDATE; 
+
 -- name: GetTransfers :one
 SELECT * FROM transfers WHERE id = $1 LIMIT 1;
+-- name: GetEntry :one
+SELECT * FROM entries WHERE id = $1 LIMIT 1;
 
 -- name: ListAccount :many
 SELECT * FROM accounts ORDER BY id LIMIT $1 OFFSET $2;

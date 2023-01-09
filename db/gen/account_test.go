@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func CreateRandomAccount(t *testing.T) Accounts {
+func CreateRandomAccount(t *testing.T) Account {
 	arg := CreateAuthorParams{
 		Owner:    util.RandomOwner(),
 		Balance:  int32(util.RandomMoney()),
 		Currency: util.RandomCurrency(),
 	}
-	out, err := testQueries.CreateAuthor(context.Background(), arg)
+	out, err := TestQueries.CreateAuthor(context.Background(), arg)
 	if err != nil {
 		require.NoError(t, err)
 		require.NotEmpty(t, out)
@@ -31,7 +31,7 @@ func CreateRandomAccount(t *testing.T) Accounts {
 
 func TestGetAccount(t *testing.T) {
 	account1 := CreateRandomAccount(t)
-	account2, err := testQueries.GetAccount(context.Background(), account1.ID)
+	account2, err := TestQueries.GetAccount(context.Background(), account1.ID)
 	require.NoError(t, err)
 	require.Equal(t, account1.ID, account2.ID)
 	require.Equal(t, account1.Balance, account2.Balance)
@@ -43,7 +43,7 @@ func TestUpdateAccount(t *testing.T) {
 		ID:      account1.ID,
 		Balance: account1.Balance,
 	}
-	account2, err := testQueries.UpdateAccount(context.Background(), arg)
+	account2, err := TestQueries.UpdateAccount(context.Background(), arg)
 	if err != nil {
 		require.Error(t, err)
 		require.Equal(t, account2, account1)
@@ -52,7 +52,7 @@ func TestUpdateAccount(t *testing.T) {
 }
 func TestDeleteAccount(t *testing.T) {
 	account1 := CreateRandomAccount(t)
-	err := testQueries.DeleteAccount(context.Background(), account1.ID)
+	err := TestQueries.deleteAccount(context.Background(), account1.ID)
 	if err != nil {
 		require.Error(t, err)
 	}
