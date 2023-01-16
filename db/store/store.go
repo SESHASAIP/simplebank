@@ -8,24 +8,30 @@ import (
 	_ "simplebank/util"
 )
 
-type store struct {
+type Store interface {
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+	gen.Querier
+}
+
+type SqlStore struct {
 	*gen.Queries
 	db *sql.DB
 }
 
-func newStore(db *sql.DB) *store {
-	return &store{
+func NewStore(db *sql.DB) Store {
+	return &SqlStore{
 		db:      db,
 		Queries: gen.New(db),
 	}
 }
 
 // execTX executes a function within a database connection
-func (s *store) execTX(ctx context.Context, fn func(*gen.Queries) error) error {
+func (s *SqlStore) execTX(ctx context.Context, fn func(*gen.Queries) error) error {
 	tx, err := s.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
 	}
+
 	q := gen.New(tx)
 	err = fn(q)
 	if err != nil {
@@ -52,7 +58,7 @@ type TransferTxResult struct {
 	ToEntry     gen.Entry    `json: "to_entry"`
 }
 
-func (s *store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+func (s *SqlStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var res TransferTxResult
 	var err1 error
 

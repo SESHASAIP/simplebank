@@ -1,0 +1,10 @@
+
+This is used to get the migrte files created 
+  
+ #1 migrate create -ext sql -dir db/migration -seq add_users
+
+
+replace command in go.mod 
+ex:= replace <mux location >  => <local directory path> 
+is used to access the files from the other 
+

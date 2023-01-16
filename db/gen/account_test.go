@@ -10,8 +10,9 @@ import (
 )
 
 func CreateRandomAccount(t *testing.T) Account {
+	user := CreateRandomUser(t)
 	arg := CreateAuthorParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  int32(util.RandomMoney()),
 		Currency: util.RandomCurrency(),
 	}
@@ -26,6 +27,11 @@ func CreateRandomAccount(t *testing.T) Account {
 		require.NotZero(t, out.CreatedAt)
 	}
 	return out
+
+}
+func TestCreateRandomAccount(t *testing.T) {
+
+	CreateRandomAccount(t)
 
 }
 

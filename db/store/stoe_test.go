@@ -18,7 +18,8 @@ const (
 func TestTransferTx(t *testing.T) {
 	dbcon, err := sql.Open(drivername, driverSource)
 	if err == nil {
-		s := newStore(dbcon)
+		s := NewStore(dbcon)
+
 		account1 := gen.CreateAuthorParams{
 
 			Owner:    util.RandomOwner(),
@@ -96,5 +97,4 @@ func TestTransferTx(t *testing.T) {
 
 		}
 	}
-
 }
